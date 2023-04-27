@@ -29,7 +29,7 @@ class Computer_Response:
             self.play_sound("test 9")
         elif self.sentiment < 1:
             self.play_sound("test 10")
-        elif self.sentimenr == 1:
+        elif self.sentiment == 1:
             self.play_sound("test 11")
         else:
             self.play_sound("You didn't say anything")

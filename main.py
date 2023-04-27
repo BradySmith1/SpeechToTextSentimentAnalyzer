@@ -98,8 +98,9 @@ def speech_analysis(file_name):
         label.config(text="done.")
         button_ok = Button(window, text="ok", command=window.destroy)
         button_ok.grid(column=0, row=1)
-        with open(file_name[0][12:] + '.txt', 'w') as w:
+        with open("./text_files/" + file_name[0][12:] + '.txt', 'w') as w:
             w.write(final_transcript[0])
+            w.close()
 
     if len(file_name) > 1:
         tkinter.messagebox.showerror(message="Too many files selected from left panel.")
@@ -116,15 +117,36 @@ def speech_analysis(file_name):
 
 
 def sentiment_analysis(file_name):
+    from google.cloud import language_v1
+    def update():
+        with open(file_name[0] + file_name[1], 'r') as f:
+            data_txt = f.read()
+        data_txt = data_txt.encode("utf-8")
+        sentiment_client = language_v1.LanguageServiceClient()
+        type_ = language_v1.types.Document.Type.PLAIN_TEXT
+        language = "en"
+        document = {"content": data_txt, "type_": type_, "language": language}
+        encoding_type = language_v1.EncodingType.UTF8
+        response = sentiment_client.analyze_entity_sentiment(
+            request={"document": document, "encoding_type": encoding_type}
+        )
+        label.config(text="done.")
+        button_ok = Button(window, text="ok", command=window.destroy)
+        button_ok.grid(column=0, row=1)
+        # TODO: response variable is the sentiment analysis object, need to pass it into the
+        #  textToSpeech and then play the response
+
     if len(file_name) > 1:
-        tkinter.messagebox.showerror(message="Too many files selected from left panel.")
+        tkinter.messagebox.showerror(message="Too many files selected from right panel.")
         return
     elif len(file_name) == 0:
-        tkinter.messagebox.showerror(message="No file selected from left panel.")
+        tkinter.messagebox.showerror(message="No file selected from right panel.")
         return
-    file_name = os.path.splitext("./mp3_files/" + file_name[0])
-    sentiment = Computer_Response()
-    # TODO: Add sentiment analysis function here
+    file_name = os.path.splitext("./text_files/" + file_name[0])
+    window = Toplevel()
+    label = Label(window, text="Sentiment Analysis in progress...")
+    label.grid(column=0, row=0)
+    window.after(1000, update)
 
 
 def main():
