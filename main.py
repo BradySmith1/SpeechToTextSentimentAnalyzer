@@ -19,6 +19,7 @@ cloud_speech = speech.SpeechClient()
 def record_window():
     """
     This function prompts the user with a window to type the name of the file they want to create.
+    :return: None
     """
     window = Toplevel()
     label = Label(window, text="Enter the name of your file", padx=15)
@@ -34,6 +35,9 @@ def record_window():
 def record_sound(file_name, other_window):
     """
     This function is used to record a voice memo and save it as an mp3 file.
+    :param file_name: The list of all the filenames selected from the left panel
+    :param other_window: The record_window window to be destroyed, once the recording is finished.
+    :return:
     """
 
     def update():
@@ -61,6 +65,8 @@ def record_sound(file_name, other_window):
 def get_listbox_selected(listbox_local):
     """
     This function is used to get all the selected functions from the mp3 listbox
+    :param listbox_local: listbox object
+    :return: returns all the selected entries in the listbox
     """
     selection = []
     for index in listbox_local.curselection():
@@ -72,6 +78,8 @@ def speech_analysis(file_name):
     """
     This function is used to perform a speech analysis on the selected mp3 files using
     the Google Cloud Speech API
+    :param file_name: The list of all the filenames selected from the left panel
+    :return: None
     """
 
     def update():
@@ -117,6 +125,12 @@ def speech_analysis(file_name):
 
 
 def sentiment_analysis(file_name):
+    """
+    This function is used to perform a sentiment analysis on the selected txt files using
+    the Google Cloud Natural Language API
+    :param file_name: The list of the filenames selected
+    :return: None
+    """
     from google.cloud import language_v1
     def update():
         with open(file_name[0] + file_name[1], 'r') as f:
@@ -149,9 +163,31 @@ def sentiment_analysis(file_name):
     window.after(1000, update)
 
 
+def output_txt(file_name):
+    """
+    This function is used to output the text file from the selected txt file
+    :param file_name: A list of all the file_names selected
+    :return: None
+    """
+    if len(file_name) > 1:
+        tkinter.messagebox.showerror(message="Too many files selected from right panel.")
+        return
+    elif len(file_name) == 0:
+        tkinter.messagebox.showerror(message="No file selected from right panel.")
+        return
+    with open("./text_files/" + file_name[0], 'r') as f:
+        data_txt = f.read()
+    window = Toplevel()
+    label = Label(window, text=data_txt)
+    label.grid(column=0, row=0)
+    button_ok = Button(window, text="ok", command=window.destroy)
+    button_ok.grid(column=0, row=1)
+
+
 def main():
     """
     Main function for the GUI, sets up the main window
+    :return: None
     """
     # Populating of the directory with possible mp3 files
     directories_mp3 = os.listdir(mp3_path)
@@ -200,6 +236,7 @@ def main():
     for n in range(len(directories_txt)):
         text_listbox.insert(n, directories_txt[n])
     text_listbox.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+    text_listbox.bind('<Double-1>', lambda event: output_txt(get_listbox_selected(text_listbox)))
 
     # center the widgets in each column
     listbox.configure(width=20, height=5)
