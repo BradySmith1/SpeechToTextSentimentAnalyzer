@@ -195,7 +195,7 @@ def main():
 
     # create the main window
     root = Tk()
-    root.title("GUI with 3 Columns")
+    root.title("Sentiment Analyzer")
     root.geometry("1200x1000")
 
     # calculate the vertical center of the window
