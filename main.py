@@ -16,6 +16,9 @@ cloud_speech = speech.SpeechClient()
 
 
 def record_window():
+    """
+    This function prompts the user with a window to type the name of the file they want to create.
+    """
     window = Toplevel()
     label = Label(window, text="Enter the name of your file", padx=15)
     label.grid(column=0, row=0)
@@ -28,6 +31,9 @@ def record_window():
 
 
 def record_sound(file_name, other_window):
+    """
+    This function is used to record a voice memo and save it as an mp3 file.
+    """
     def update():
         my_recording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
         sd.wait()  # Wait until recording is finished
@@ -51,6 +57,9 @@ def record_sound(file_name, other_window):
 
 
 def get_listbox_selected(listbox_local):
+    """
+    This function is used to get all the selected functions from the mp3 listbox
+    """
     selection = []
     for index in listbox_local.curselection():
         selection.append(listbox_local.get(index))
@@ -58,6 +67,10 @@ def get_listbox_selected(listbox_local):
 
 
 def speech_analysis(file_name):
+    """
+    This function is used to perform a speech analysis on the selected mp3 files using
+    the Google Cloud Speech API
+    """
     def update():
         config_mp3 = speech.RecognitionConfig(
             sample_rate_hertz=fs,
@@ -99,58 +112,66 @@ def speech_analysis(file_name):
     window.mainloop()
 
 
-# Populating of the directory with possible mp3 files
-directories_mp3 = os.listdir(mp3_path)
-directories_txt = os.listdir(txt_path)
+def main():
+    """
+    Main function for the GUI, sets up the main window
+    """
+    # Populating of the directory with possible mp3 files
+    directories_mp3 = os.listdir(mp3_path)
+    directories_txt = os.listdir(txt_path)
 
-# create the main window
-root = Tk()
-root.title("GUI with 3 Columns")
-root.geometry("1200x1000")
+    # create the main window
+    root = Tk()
+    root.title("GUI with 3 Columns")
+    root.geometry("1200x1000")
 
-# calculate the vertical center of the window
-window_height = root.winfo_reqheight()
-screen_height = root.winfo_screenheight()
-y = (screen_height - window_height) // 2
+    # calculate the vertical center of the window
+    window_height = root.winfo_reqheight()
+    screen_height = root.winfo_screenheight()
+    y = (screen_height - window_height) // 2
 
-# specify the grid layout
-root.columnconfigure(0, weight=1)
-root.columnconfigure(1, weight=1)
-root.columnconfigure(2, weight=1)
-root.rowconfigure(1, weight=1)
+    # specify the grid layout
+    root.columnconfigure(0, weight=1)
+    root.columnconfigure(1, weight=1)
+    root.columnconfigure(2, weight=1)
+    root.rowconfigure(1, weight=1)
 
-# create a Listbox in the first column
-listbox = Listbox(root)
-for i in range(len(directories_mp3)):
-    listbox.insert(i, directories_mp3[i])
-listbox.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+    # create a Listbox in the first column
+    listbox = Listbox(root)
+    for i in range(len(directories_mp3)):
+        listbox.insert(i, directories_mp3[i])
+    listbox.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
-# create three Buttons in the second column
-options_frame = Frame(root)
-options_frame.grid(column=1, row=1, rowspan=1, pady=50, sticky="n")
-title = Label(options_frame, text="Sentiment Analyzer")
-title.grid(row=0, column=1, pady=125, sticky="n")
-button1 = Button(options_frame, text="New Record", command=record_window)
-button1.grid(row=1, column=1, pady=25, sticky="n")
-button2 = Button(options_frame, text="Transcribe", command=lambda: speech_analysis(get_listbox_selected(listbox)))
-button2.grid(row=2, column=1, pady=25, sticky="n")
-button3 = Button(options_frame, text="Perform\n Sentiment\n Analysis")
-button3.grid(row=3, column=1, pady=25, sticky="n")
-button4 = Button(options_frame, text="Exit", command=root.destroy)
-button4.grid(row=4, column=1, pady=25, sticky="n")
+    # create three Buttons in the second column
+    options_frame = Frame(root)
+    options_frame.grid(column=1, row=1, rowspan=1, pady=50, sticky="n")
+    title = Label(options_frame, text="Sentiment Analyzer")
+    title.grid(row=0, column=1, pady=125, sticky="n")
+    button1 = Button(options_frame, text="New Record", command=record_window)
+    button1.grid(row=1, column=1, pady=25, sticky="n")
+    button2 = Button(options_frame, text="Transcribe", command=lambda: speech_analysis(get_listbox_selected(listbox)))
+    button2.grid(row=2, column=1, pady=25, sticky="n")
+    button3 = Button(options_frame, text="Perform\n Sentiment\n Analysis")
+    button3.grid(row=3, column=1, pady=25, sticky="n")
+    button4 = Button(options_frame, text="Exit", command=root.destroy)
+    button4.grid(row=4, column=1, pady=25, sticky="n")
 
-# create a Text widget in the third column
-text_listbox = Listbox(root)
-for n in range(len(directories_txt)):
-    text_listbox.insert(n, directories_txt[n])
-text_listbox.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+    # create a Text widget in the third column
+    text_listbox = Listbox(root)
+    for n in range(len(directories_txt)):
+        text_listbox.insert(n, directories_txt[n])
+    text_listbox.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
 
-# center the widgets in each column
-listbox.configure(width=20, height=5)
-button1.configure(width=10)
-button2.configure(width=10)
-button3.configure(width=10)
-text_listbox.configure(width=30, height=5)
+    # center the widgets in each column
+    listbox.configure(width=20, height=5)
+    button1.configure(width=10)
+    button2.configure(width=10)
+    button3.configure(width=10)
+    text_listbox.configure(width=30, height=5)
 
-# start the event loop
-root.mainloop()
+    # start the event loop
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
