@@ -5,6 +5,7 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 from pydub import AudioSegment
 from google.cloud import speech
+from textToSpeech import Computer_Response
 
 # parameter values for specific numbers needed in the functions below.
 fs = 44100  # Sample rate
@@ -34,6 +35,7 @@ def record_sound(file_name, other_window):
     """
     This function is used to record a voice memo and save it as an mp3 file.
     """
+
     def update():
         my_recording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
         sd.wait()  # Wait until recording is finished
@@ -71,6 +73,7 @@ def speech_analysis(file_name):
     This function is used to perform a speech analysis on the selected mp3 files using
     the Google Cloud Speech API
     """
+
     def update():
         config_mp3 = speech.RecognitionConfig(
             sample_rate_hertz=fs,
@@ -112,6 +115,18 @@ def speech_analysis(file_name):
     window.mainloop()
 
 
+def sentiment_analysis(file_name):
+    if len(file_name) > 1:
+        tkinter.messagebox.showerror(message="Too many files selected from left panel.")
+        return
+    elif len(file_name) == 0:
+        tkinter.messagebox.showerror(message="No file selected from left panel.")
+        return
+    file_name = os.path.splitext("./mp3_files/" + file_name[0])
+    sentiment = Computer_Response()
+    # TODO: Add sentiment analysis function here
+
+
 def main():
     """
     Main function for the GUI, sets up the main window
@@ -149,9 +164,11 @@ def main():
     title.grid(row=0, column=1, pady=125, sticky="n")
     button1 = Button(options_frame, text="New Record", command=record_window)
     button1.grid(row=1, column=1, pady=25, sticky="n")
-    button2 = Button(options_frame, text="Transcribe", command=lambda: speech_analysis(get_listbox_selected(listbox)))
+    button2 = Button(options_frame, text="Transcribe", command=lambda: speech_analysis(
+        get_listbox_selected(listbox)))
     button2.grid(row=2, column=1, pady=25, sticky="n")
-    button3 = Button(options_frame, text="Perform\n Sentiment\n Analysis")
+    button3 = Button(options_frame, text="Perform\n Sentiment\n Analysis", command=lambda:
+    sentiment_analysis(get_listbox_selected(text_listbox)))
     button3.grid(row=3, column=1, pady=25, sticky="n")
     button4 = Button(options_frame, text="Exit", command=root.destroy)
     button4.grid(row=4, column=1, pady=25, sticky="n")

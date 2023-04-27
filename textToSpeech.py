@@ -1,11 +1,10 @@
 import pyttsx3
-from playsound import playsound
 
 class Computer_Response:
     def __init__(self, sentiment_value):
         self.sentiment = sentiment_value
         self.engine = pyttsx3.init()
-        self.voice = 0;
+        self.voice = 0
 
     def generate_response(self):
         if self.sentiment == -1:
@@ -34,7 +33,6 @@ class Computer_Response:
             self.play_sound("test 11")
         else:
             self.play_sound("You didn't say anything")
-        
 
     def toggle_voice(self):
         voices = self.engine.getProperty('voices')
