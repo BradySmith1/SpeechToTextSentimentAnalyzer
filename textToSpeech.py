@@ -30,8 +30,10 @@ class Computer_Response:
             self.play_sound("test 9")
         elif self.sentiment < 1:
             self.play_sound("test 10")
-        else:
+        elif self.sentimenr == 1:
             self.play_sound("test 11")
+        else:
+            self.play_sound("You didn't say anything")
         
 
     def toggle_voice(self):
@@ -50,15 +52,3 @@ class Computer_Response:
 
     def set_sentiment_value(self, new_sentiment_value):
         self.sentiment = new_sentiment_value
-
-def main():
-    response = Computer_Response(.3)
-    response.generate_response()
-    response.set_sentiment_value(-1); 
-    response.generate_response()
-    response.set_sentiment_value(-.567); 
-    response.generate_response()
-    response.set_sentiment_value(.58); 
-    response.generate_response()
-
-main()
