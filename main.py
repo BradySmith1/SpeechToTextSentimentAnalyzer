@@ -9,7 +9,8 @@ from google.cloud import speech
 # parameter values for specific numbers needed in the functions below.
 fs = 44100  # Sample rate
 seconds = 3  # Duration of recording
-start_path = "./mp3_files"
+mp3_path = "./mp3_files"
+txt_path = "./text_files"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './keys/strange-sun-377020-89492c5c249f.json'
 cloud_speech = speech.SpeechClient()
 
@@ -63,20 +64,26 @@ def speech_analysis(file_name):
             enable_automatic_punctuation=TRUE,
             language_code='en-US'
         )
-        with open(file_name + ".mp3", 'rb') as f:
+        with open(file_name[0] + file_name[1], 'rb') as f:
             byte_data_mp3 = f.read()
         audio_mp3 = speech.RecognitionAudio(content=byte_data_mp3)
 
-        transcription = cloud_speech.recognize(
+        response = cloud_speech.recognize(
             config=config_mp3,
             audio=audio_mp3
         )
-        print(transcription)
+        final_transcript = []
+        final_transcript_confidence = []
+        for result in response.results:
+            alternative = result.alternatives[0]
+            final_transcript_confidence.append(alternative.confidence)
+            final_transcript.append(alternative.transcript)
+
         label.config(text="done.")
         button_ok = Button(window, text="ok", command=window.destroy)
         button_ok.grid(column=0, row=1)
-        # with open(file_name + '.txt', 'w') as w:
-        #     w.write(transcription)
+        with open(file_name[0][12:] + '.txt', 'w') as w:
+            w.write(final_transcript[0])
 
     if len(file_name) > 1:
         tkinter.messagebox.showerror(message="Too many files selected from left panel.")
@@ -84,6 +91,7 @@ def speech_analysis(file_name):
     elif len(file_name) == 0:
         tkinter.messagebox.showerror(message="No file selected from left panel.")
         return
+    file_name = os.path.splitext("./mp3_files/" + file_name[0])
     window = Toplevel()
     label = Label(window, text="Transcribing in progress...")
     label.grid(column=0, row=0)
@@ -92,7 +100,8 @@ def speech_analysis(file_name):
 
 
 # Populating of the directory with possible mp3 files
-directories = os.listdir(start_path)
+directories_mp3 = os.listdir(mp3_path)
+directories_txt = os.listdir(txt_path)
 
 # create the main window
 root = Tk()
@@ -112,8 +121,8 @@ root.rowconfigure(1, weight=1)
 
 # create a Listbox in the first column
 listbox = Listbox(root)
-for i in range(len(directories)):
-    listbox.insert(i, directories[i])
+for i in range(len(directories_mp3)):
+    listbox.insert(i, directories_mp3[i])
 listbox.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
 # create three Buttons in the second column
@@ -131,15 +140,17 @@ button4 = Button(options_frame, text="Exit", command=root.destroy)
 button4.grid(row=4, column=1, pady=25, sticky="n")
 
 # create a Text widget in the third column
-text = Text(root)
-text.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
+text_listbox = Listbox(root)
+for n in range(len(directories_txt)):
+    text_listbox.insert(n, directories_txt[n])
+text_listbox.grid(row=1, column=2, padx=10, pady=10, sticky="nsew")
 
 # center the widgets in each column
 listbox.configure(width=20, height=5)
 button1.configure(width=10)
 button2.configure(width=10)
 button3.configure(width=10)
-text.configure(width=30, height=5)
+text_listbox.configure(width=30, height=5)
 
 # start the event loop
 root.mainloop()
