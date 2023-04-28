@@ -22,4 +22,4 @@ Commands to install Required Libraries:
     pip install --upgrade google-cloud-language
 
 Usage:
-    uhhhhhh
+    python3 main.py
