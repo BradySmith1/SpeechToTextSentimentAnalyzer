@@ -37,13 +37,17 @@ class SentimentAnalyzer:
             print("Could not open file")
             exit()
 
+        text = text.encode("utf-8")
         document = language_v1.Document(
             content=text, type_=language_v1.Document.Type.PLAIN_TEXT
         )
 
+        # Available values: NONE, UTF8, UTF16, UTF32
+        encoding_type = language_v1.EncodingType.UTF8
+
         # Detects the sentiment of the text
         response = self.client.analyze_entity_sentiment(
-            request={"document": document}
+            request={"document": document, "encoding_type": encoding_type}
         )
 
         return response

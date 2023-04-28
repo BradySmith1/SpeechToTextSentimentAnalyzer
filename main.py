@@ -224,6 +224,17 @@ def show_entity_sentiment(response):
                 "Salience score: {}\n".format(entity.salience) + \
                 "Entity sentiment score: {}\n".format(entity.sentiment.score) + \
                 "Entity sentiment magnitude: {}\n".format(entity.sentiment.magnitude)
+        for mention in entity.mentions:
+            value += ("Mention text: {}\n".format(mention.text.content))
+            # Get the mention type, e.g. PROPER for proper noun
+            value +=(
+                "Mention type: {}\n".format(
+                    language_v1.EntityMention.Type(mention.type_).name
+                )
+            )
+            for metadata_name, metadata_value in entity.metadata.items():
+                value += ("{} = {}".format(metadata_name, metadata_value))
+
         entity_details = {**entity_details, key : value}
         i += 1
 
