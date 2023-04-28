@@ -1,3 +1,10 @@
+###############################################################################
+# This main driver runs the entirety of the program. Utilizes speech-to-text,
+# sentiment analysis, and text-to-speech.
+#
+# Authors: Nolan Flinchum, Andrew Monroe, Brady Smith
+# Date: 4/28/2023
+###############################################################################
 import tkinter.messagebox
 from tkinter import *
 import os
@@ -5,7 +12,7 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 from pydub import AudioSegment
 from google.cloud import speech, language_v1
-from textToSpeech import Computer_Response
+from textToSpeech import ComputerResponse
 from sentimentAnalysis import SentimentAnalyzer
 
 # parameter values for specific numbers needed in the functions below.

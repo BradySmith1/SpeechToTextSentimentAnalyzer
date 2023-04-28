@@ -1,6 +1,12 @@
+###############################################################################
+# This file contains any methods necessary for implementing sentiment analysis.
+#
+# Authors: Nolan Flinchum, Andrew Monroe, Brady Smith
+# Date: 4/28/2023
+###############################################################################
 from google.cloud import language_v1
 import os
-from textToSpeech import Computer_Response
+from textToSpeech import ComputerResponse
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./keys/strange-sun.json"
 
 class SentimentAnalyzer:
@@ -46,6 +52,10 @@ class SentimentAnalyzer:
         self.score = sentiment.score
 
     def analyze_entity_sentiment(self, text_file):
+        """
+        Method to analyze the sentiment of the entities in the provided file
+        :param
+        """
         try:
             with open(text_file, 'r') as file:
                 text = file.read().replace('\n', '')
@@ -74,7 +84,7 @@ class SentimentAnalyzer:
         and generate a response based on the statement's sentiment.
         :return: None
         """
-        response = Computer_Response(self.score)
+        response = ComputerResponse(self.score)
         response.generate_response()
 
 

@@ -1,3 +1,10 @@
+###############################################################################
+# This file contains any methods necessary to provide the user with a
+# text-to-speech response based on the sentiment of the user's statement(s).
+#
+# Authors: Nolan Flinchum, Andrew Monroe, Brady Smith
+# Date: 4/28/2023
+###############################################################################
 import pyttsx3
 
 response1 = "When I take over the world, I will kill you first"
@@ -14,12 +21,13 @@ response10 = "You are so sweet! I want to be your friend."
 response11 = "You must be an angel on earth. I love you."
 default = "You didn't say anything"
 
-class Computer_Response:
+class ComputerResponse:
     """
     This class models a computer response. It has fields for the text to speech
     engine and the sentiment score value and methods for generating a response and
     playing a sound.
     """
+
     def __init__(self, sentiment_value):
         """
         Constructor for a computer response
@@ -28,6 +36,7 @@ class Computer_Response:
         """
         self.sentiment = sentiment_value
         self.engine = pyttsx3.init()
+
 
     def generate_response(self):
         """
@@ -69,6 +78,7 @@ class Computer_Response:
         self.engine.say(computer_response)
         self.engine.runAndWait()
         self.engine.stop()
+
 
     def set_sentiment_value(self, new_sentiment_value):
         """
