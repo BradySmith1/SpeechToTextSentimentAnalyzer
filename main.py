@@ -4,7 +4,7 @@ import os
 import sounddevice as sd
 from scipy.io.wavfile import write
 from pydub import AudioSegment
-from google.cloud import speech
+from google.cloud import speech, language_v1
 from textToSpeech import Computer_Response
 from sentimentAnalysis import Sentiment_Analyzer
 
@@ -16,6 +16,7 @@ txt_path = "./text_files/"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'services.json'
 # ^ This is the key for the authentication of the google cloud.
 cloud_speech = speech.SpeechClient()  # Starts speech client
+entity_details = {}  # List that will hold the entities found in the audio file.
 
 
 def record_window():
@@ -166,7 +167,7 @@ def sentiment_analysis(file_name):
     :param file_name: The list of the filenames selected
     :return: None
     """
-    from google.cloud import language_v1
+
     def update():
         """
         Helper function to update the window to show that the sentiment analysis has taken place and
@@ -180,9 +181,9 @@ def sentiment_analysis(file_name):
 
 
         # Sentiment analysis finishes. Shows the user that the analysis is done.
-        label.config(text="done.")
-        button_ok = Button(window, text="ok", command=window.destroy)
-        button_ok.grid(column=0, row=1)
+        show_entity_sentiment(response)
+        window.destroy()
+
         # TODO: response variable is the sentiment analysis object, need to pass it into the
         #  textToSpeech and then play the response
 
@@ -200,6 +201,37 @@ def sentiment_analysis(file_name):
     label = Label(window, text="Sentiment Analysis in progress...")
     label.grid(column=0, row=0)
     window.after(1000, update)
+
+
+def show_entity_sentiment(response):
+    global entity_details
+    window = Toplevel()
+    listbox = Listbox(window)
+    listbox.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+    listbox.bind("<Double-1>", lambda event: output_entity(get_listbox_selected(listbox)))
+    button_done = Button(window, text="done", command=window.destroy)
+    button_done.grid(column=1, row=1)
+    # Loop through entities returned from the API
+    i = 0
+    for entity in response.entities:
+        listbox.insert(i, entity.name)
+        key = entity.name
+        value = "Representative name for the entity: {}\n".format(entity.name) + \
+                "Entity type: {}\n".format(language_v1.Entity.Type(entity.type_).name) + \
+                "Salience score: {}\n".format(entity.salience) + \
+                "Entity sentiment score: {}\n".format(entity.sentiment.score) + \
+                "Entity sentiment magnitude: {}\n".format(entity.sentiment.magnitude)
+        entity_details = {**entity_details, key : value}
+        i += 1
+
+
+def output_entity(entity_name):
+    global entity_details
+    window = Toplevel()
+    label = Label(window, text=entity_details[entity_name[0]])
+    label.grid(column=0, row=0)
+    button_ok = Button(window, text="ok", command=window.destroy)
+    button_ok.grid(column=0, row=1)
 
 
 def output_txt(file_name):
@@ -310,10 +342,10 @@ title.grid(row=0, column=1, pady=125, sticky="n")
 button_record = Button(options_frame, text="New Record", command=record_window)
 button_record.grid(row=1, column=1, pady=25, sticky="n")
 button_transcribe = Button(options_frame, text="Transcribe", command=lambda: speech_analysis(
-                                                                get_listbox_selected(listbox_mp3)))
+    get_listbox_selected(listbox_mp3)))
 button_transcribe.grid(row=2, column=1, pady=25, sticky="n")
 button_sentiment = Button(options_frame, text="Perform\n Sentiment\n Analysis", command=lambda:
-                                        sentiment_analysis(get_listbox_selected(listbox_text)))
+sentiment_analysis(get_listbox_selected(listbox_text)))
 button_sentiment.grid(row=3, column=1, pady=25, sticky="n")
 button_exit = Button(options_frame, text="Exit", command=root.destroy)
 button_exit.grid(row=4, column=1, pady=25, sticky="n")
