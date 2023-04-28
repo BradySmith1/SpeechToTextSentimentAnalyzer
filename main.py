@@ -184,9 +184,6 @@ def sentiment_analysis(file_name):
         show_entity_sentiment(response)
         window.destroy()
 
-        # TODO: response variable is the sentiment analysis object, need to pass it into the
-        #  textToSpeech and then play the response
-
     # parses the filename to make sure it is able to used.
     if len(file_name) > 1:
         tkinter.messagebox.showerror(message="Too many files selected from right panel.")
@@ -204,6 +201,11 @@ def sentiment_analysis(file_name):
 
 
 def show_entity_sentiment(response):
+    """
+    This function is used to show the user the entity sentiment analysis results
+    :param response: JSON object with the response.
+    :return: None
+    """
     global entity_details
     window = Toplevel()
     listbox = Listbox(window)
@@ -211,7 +213,8 @@ def show_entity_sentiment(response):
     listbox.bind("<Double-1>", lambda event: output_entity(get_listbox_selected(listbox)))
     button_done = Button(window, text="done", command=window.destroy)
     button_done.grid(column=1, row=1)
-    # Loop through entities returned from the API
+
+    # Loop through entities returned from the API and add them as key value pairs
     i = 0
     for entity in response.entities:
         listbox.insert(i, entity.name)
@@ -226,6 +229,12 @@ def show_entity_sentiment(response):
 
 
 def output_entity(entity_name):
+    """
+    Uses the stored entity details to output the entity details to the user based on what they
+    select.
+    :param entity_name: The name of the entity that the user selected
+    :return: None
+    """
     global entity_details
     window = Toplevel()
     label = Label(window, text=entity_details[entity_name[0]])
