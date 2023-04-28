@@ -11,8 +11,14 @@ Commands to install Required Libraries:
     pip install pyttsx3
     pip install playsound
     pip install tkinter
+    sudo apt-get install python3-tkinter
+    pip install tkinterx
     pip install sounddevice
     pip install pydub
+    sudo apt-get install ffmpeg
+    sudo apt-get install  espeak
+    sudo apt-get install  python3-pyaudio
+    pip install pyaudio
     pip install --upgrade google-cloud-language
 
 Usage:
