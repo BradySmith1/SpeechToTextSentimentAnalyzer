@@ -4,11 +4,27 @@ from textToSpeech import Computer_Response
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="services.json"
 
 class Sentiment_Analyzer:
+    """
+    This class models a sentiment analyzer, which will read from a given
+    text file to analyze. Once a score of the sentiment is produced, this
+    class will feed it to the computer's response.
+    """
+
     def __init__(self):
+        """
+        Constructor for a sentiment analyzer that intializes the client and score
+        :return: None
+        """
         self.client = language_v1.LanguageServiceClient()
         self.score = 0
 
+
     def analyze(self, text_file):
+        """
+        Method to open the provided file and analyze the sentiment of its contents
+        :param text_file: the file to be analyzed
+        :return: None
+        """
         try:
             with open(text_file, 'r') as file:
                 text = file.read().replace('\n', '')
@@ -16,20 +32,33 @@ class Sentiment_Analyzer:
             print("Could not open file")
             exit()
 
+        # prepare content of the text file
         document = language_v1.Document(
             content=text, type_=language_v1.Document.Type.PLAIN_TEXT
         )
 
-        # Detects the sentiment of the text
+        # detects the sentiment of the text
         sentiment = self.client.analyze_sentiment(
             request={"document": document}
         ).document_sentiment
 
+        # receive score from the sentiment
         self.score = sentiment.score
 
+
     def say_in_response(self):
+        """
+        Method to pass the current sentiment score to the computer response class
+        and generate a response based on the statement's sentiment.
+        :return: None
+        """
         response = Computer_Response(self.score)
         response.generate_response()
 
+
     def get_score(self):
+        """
+        Getter for the sentiment score
+        :return: the sentiment score
+        """
         return self.score

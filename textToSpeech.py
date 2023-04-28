@@ -23,7 +23,7 @@ class Computer_Response:
     def __init__(self, sentiment_value):
         """
         Constructor for a computer response
-        :param sentiment_vale: a sentiment score
+        :param sentiment_value: a sentiment score
         :return: None
         """
         self.sentiment = sentiment_value
