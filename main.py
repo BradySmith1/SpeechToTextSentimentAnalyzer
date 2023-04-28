@@ -6,14 +6,14 @@ from scipy.io.wavfile import write
 from pydub import AudioSegment
 from google.cloud import speech, language_v1
 from textToSpeech import Computer_Response
-from sentimentAnalysis import Sentiment_Analyzer
+from sentimentAnalysis import SentimentAnalyzer
 
 # parameter values for specific numbers needed in the functions below.
 fs = 44100  # Sample rate
 seconds = 10  # Duration of recording CHANGE VALUE FOR LONGER VOICE RECORDINGS
 mp3_path = "./mp3_files/"
 txt_path = "./text_files/"
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'services.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './keys/strange-sun.json'
 # ^ This is the key for the authentication of the google cloud.
 cloud_speech = speech.SpeechClient()  # Starts speech client
 entity_details = {}  # List that will hold the entities found in the audio file.
@@ -175,17 +175,14 @@ def sentiment_analysis(file_name):
         :return: None
         """
         text_file = file_name[0] + file_name[1]
-        analyzer = Sentiment_Analyzer()
+        analyzer = SentimentAnalyzer()
         analyzer.analyze(text_file)
         analyzer.say_in_response()
 
-
+        response = analyzer.analyze_entity_sentiment(text_file)
         # Sentiment analysis finishes. Shows the user that the analysis is done.
         show_entity_sentiment(response)
         window.destroy()
-
-        # TODO: response variable is the sentiment analysis object, need to pass it into the
-        #  textToSpeech and then play the response
 
     # parses the filename to make sure it is able to used.
     if len(file_name) > 1:
@@ -204,6 +201,11 @@ def sentiment_analysis(file_name):
 
 
 def show_entity_sentiment(response):
+    """
+    This function is used to show the user the entity sentiment analysis results
+    :param response: JSON object with the response.
+    :return: None
+    """
     global entity_details
     window = Toplevel()
     listbox = Listbox(window)
@@ -211,7 +213,8 @@ def show_entity_sentiment(response):
     listbox.bind("<Double-1>", lambda event: output_entity(get_listbox_selected(listbox)))
     button_done = Button(window, text="done", command=window.destroy)
     button_done.grid(column=1, row=1)
-    # Loop through entities returned from the API
+
+    # Loop through entities returned from the API and add them as key value pairs
     i = 0
     for entity in response.entities:
         listbox.insert(i, entity.name)
@@ -226,6 +229,12 @@ def show_entity_sentiment(response):
 
 
 def output_entity(entity_name):
+    """
+    Uses the stored entity details to output the entity details to the user based on what they
+    select.
+    :param entity_name: The name of the entity that the user selected
+    :return: None
+    """
     global entity_details
     window = Toplevel()
     label = Label(window, text=entity_details[entity_name[0]])
