@@ -1,6 +1,6 @@
 from google.cloud import language_v1
 import os
-import textToSpeech
+from textToSpeech import Computer_Response
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="services.json"
 
 class Sentiment_Analyzer:
@@ -27,13 +27,9 @@ class Sentiment_Analyzer:
 
         self.score = sentiment.score
 
+    def say_in_response(self):
+        response = Computer_Response(self.score)
+        response.generate_response()
+
     def get_score(self):
         return self.score
-
-def main() :
-    text = Sentiment_Analyzer()
-    text.analyze("text_files\\text.txt")
-    response = textToSpeech.Computer_Response(text.get_score())
-    response.generate_response();
-
-main()

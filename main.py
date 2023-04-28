@@ -6,13 +6,14 @@ from scipy.io.wavfile import write
 from pydub import AudioSegment
 from google.cloud import speech
 from textToSpeech import Computer_Response
+from sentimentAnalysis import Sentiment_Analyzer
 
 # parameter values for specific numbers needed in the functions below.
 fs = 44100  # Sample rate
 seconds = 10  # Duration of recording CHANGE VALUE FOR LONGER VOICE RECORDINGS
 mp3_path = "./mp3_files/"
 txt_path = "./text_files/"
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './keys/strange-sun-377020-89492c5c249f.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'services.json'
 # ^ This is the key for the authentication of the google cloud.
 cloud_speech = speech.SpeechClient()  # Starts speech client
 
@@ -172,17 +173,11 @@ def sentiment_analysis(file_name):
         has finished.
         :return: None
         """
-        with open(file_name[0] + file_name[1], 'r') as f:  # reads in the string from the txt file.
-            data_txt = f.read()
-        data_txt = data_txt.encode("utf-8")  # encodes the data to be used by the API
-        sentiment_client = language_v1.LanguageServiceClient()
-        type_ = language_v1.types.Document.Type.PLAIN_TEXT
-        language = "en"
-        document = {"content": data_txt, "type_": type_, "language": language}
-        encoding_type = language_v1.EncodingType.UTF8
-        response = sentiment_client.analyze_entity_sentiment(  # Performs the sentiment analysis
-            request={"document": document, "encoding_type": encoding_type}
-        )
+        text_file = file_name[0] + file_name[1]
+        analyzer = Sentiment_Analyzer()
+        analyzer.analyze(text_file)
+        analyzer.say_in_response()
+
 
         # Sentiment analysis finishes. Shows the user that the analysis is done.
         label.config(text="done.")
