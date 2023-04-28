@@ -4,18 +4,19 @@ import os
 import sounddevice as sd
 from scipy.io.wavfile import write
 from pydub import AudioSegment
-from google.cloud import speech
+from google.cloud import speech, language_v1
 from textToSpeech import Computer_Response
-from sentimentAnalysis import Sentiment_Analyzer
+from sentimentAnalysis import SentimentAnalyzer
 
 # parameter values for specific numbers needed in the functions below.
 fs = 44100  # Sample rate
 seconds = 10  # Duration of recording CHANGE VALUE FOR LONGER VOICE RECORDINGS
 mp3_path = "./mp3_files/"
 txt_path = "./text_files/"
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'services.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './keys/strange-sun.json'
 # ^ This is the key for the authentication of the google cloud.
 cloud_speech = speech.SpeechClient()  # Starts speech client
+entity_details = {}  # List that will hold the entities found in the audio file.
 
 
 def record_window():
@@ -166,7 +167,7 @@ def sentiment_analysis(file_name):
     :param file_name: The list of the filenames selected
     :return: None
     """
-    from google.cloud import language_v1
+
     def update():
         """
         Helper function to update the window to show that the sentiment analysis has taken place and
@@ -174,17 +175,14 @@ def sentiment_analysis(file_name):
         :return: None
         """
         text_file = file_name[0] + file_name[1]
-        analyzer = Sentiment_Analyzer()
+        analyzer = SentimentAnalyzer()
         analyzer.analyze(text_file)
         analyzer.say_in_response()
 
-
+        response = analyzer.analyze_entity_sentiment(text_file)
         # Sentiment analysis finishes. Shows the user that the analysis is done.
-        label.config(text="done.")
-        button_ok = Button(window, text="ok", command=window.destroy)
-        button_ok.grid(column=0, row=1)
-        # TODO: response variable is the sentiment analysis object, need to pass it into the
-        #  textToSpeech and then play the response
+        show_entity_sentiment(response)
+        window.destroy()
 
     # parses the filename to make sure it is able to used.
     if len(file_name) > 1:
@@ -200,6 +198,60 @@ def sentiment_analysis(file_name):
     label = Label(window, text="Sentiment Analysis in progress...")
     label.grid(column=0, row=0)
     window.after(1000, update)
+
+
+def show_entity_sentiment(response):
+    """
+    This function is used to show the user the entity sentiment analysis results
+    :param response: JSON object with the response.
+    :return: None
+    """
+    global entity_details
+    window = Toplevel()
+    listbox = Listbox(window)
+    listbox.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+    listbox.bind("<Double-1>", lambda event: output_entity(get_listbox_selected(listbox)))
+    button_done = Button(window, text="done", command=window.destroy)
+    button_done.grid(column=1, row=1)
+
+    # Loop through entities returned from the API and add them as key value pairs
+    i = 0
+    for entity in response.entities:
+        listbox.insert(i, entity.name)
+        key = entity.name
+        value = "Representative name for the entity: {}\n".format(entity.name) + \
+                "Entity type: {}\n".format(language_v1.Entity.Type(entity.type_).name) + \
+                "Salience score: {}\n".format(entity.salience) + \
+                "Entity sentiment score: {}\n".format(entity.sentiment.score) + \
+                "Entity sentiment magnitude: {}\n".format(entity.sentiment.magnitude)
+        for mention in entity.mentions:
+            value += ("Mention text: {}\n".format(mention.text.content))
+            # Get the mention type, e.g. PROPER for proper noun
+            value +=(
+                "Mention type: {}\n".format(
+                    language_v1.EntityMention.Type(mention.type_).name
+                )
+            )
+            for metadata_name, metadata_value in entity.metadata.items():
+                value += ("{} = {}".format(metadata_name, metadata_value))
+
+        entity_details = {**entity_details, key : value}
+        i += 1
+
+
+def output_entity(entity_name):
+    """
+    Uses the stored entity details to output the entity details to the user based on what they
+    select.
+    :param entity_name: The name of the entity that the user selected
+    :return: None
+    """
+    global entity_details
+    window = Toplevel()
+    label = Label(window, text=entity_details[entity_name[0]])
+    label.grid(column=0, row=0)
+    button_ok = Button(window, text="ok", command=window.destroy)
+    button_ok.grid(column=0, row=1)
 
 
 def output_txt(file_name):
@@ -310,10 +362,10 @@ title.grid(row=0, column=1, pady=125, sticky="n")
 button_record = Button(options_frame, text="New Record", command=record_window)
 button_record.grid(row=1, column=1, pady=25, sticky="n")
 button_transcribe = Button(options_frame, text="Transcribe", command=lambda: speech_analysis(
-                                                                get_listbox_selected(listbox_mp3)))
+    get_listbox_selected(listbox_mp3)))
 button_transcribe.grid(row=2, column=1, pady=25, sticky="n")
 button_sentiment = Button(options_frame, text="Perform\n Sentiment\n Analysis", command=lambda:
-                                        sentiment_analysis(get_listbox_selected(listbox_text)))
+sentiment_analysis(get_listbox_selected(listbox_text)))
 button_sentiment.grid(row=3, column=1, pady=25, sticky="n")
 button_exit = Button(options_frame, text="Exit", command=root.destroy)
 button_exit.grid(row=4, column=1, pady=25, sticky="n")
