@@ -6,14 +6,14 @@ from scipy.io.wavfile import write
 from pydub import AudioSegment
 from google.cloud import speech, language_v1
 from textToSpeech import Computer_Response
-from sentimentAnalysis import Sentiment_Analyzer
+from sentimentAnalysis import SentimentAnalyzer
 
 # parameter values for specific numbers needed in the functions below.
 fs = 44100  # Sample rate
 seconds = 10  # Duration of recording CHANGE VALUE FOR LONGER VOICE RECORDINGS
 mp3_path = "./mp3_files/"
 txt_path = "./text_files/"
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'services.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './keys/strange-sun.json'
 # ^ This is the key for the authentication of the google cloud.
 cloud_speech = speech.SpeechClient()  # Starts speech client
 entity_details = {}  # List that will hold the entities found in the audio file.
@@ -175,11 +175,11 @@ def sentiment_analysis(file_name):
         :return: None
         """
         text_file = file_name[0] + file_name[1]
-        analyzer = Sentiment_Analyzer()
+        analyzer = SentimentAnalyzer()
         analyzer.analyze(text_file)
         analyzer.say_in_response()
 
-
+        response = analyzer.analyze_entity_sentiment(text_file)
         # Sentiment analysis finishes. Shows the user that the analysis is done.
         show_entity_sentiment(response)
         window.destroy()
