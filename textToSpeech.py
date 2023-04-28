@@ -20,6 +20,7 @@ response9 = "Wow! You are blowing me away with your kind words."
 response10 = "You are so sweet! I want to be your friend."
 response11 = "You must be an angel on earth. I love you."
 default = "You didn't say anything"
+rate = 175
 
 class ComputerResponse:
     """
@@ -36,6 +37,7 @@ class ComputerResponse:
         """
         self.sentiment = sentiment_value
         self.engine = pyttsx3.init()
+        self.engine.setProperty('rate', rate)
 
 
     def generate_response(self):
