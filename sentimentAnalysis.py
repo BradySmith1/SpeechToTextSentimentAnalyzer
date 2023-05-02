@@ -54,7 +54,8 @@ class SentimentAnalyzer:
     def analyze_entity_sentiment(self, text_file):
         """
         Method to analyze the sentiment of the entities in the provided file
-        :param
+        :param text_file: the file to be analyzed
+        :return: None
         """
         try:
             with open(text_file, 'r') as file:
