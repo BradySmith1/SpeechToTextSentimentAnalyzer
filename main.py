@@ -38,16 +38,16 @@ def record_window():
         to the record_sound function.
         :return: None
         """
-        global seconds
         # All code below is used to set the global seconds variable to the value entered by the
         # user.
+        sec = 0
         try:
-            seconds = int(entry_box1.get())
+            sec = int(entry_box1.get())
         except ValueError:
             tkinter.messagebox.showerror(message="Please enter a valid number.")
             window.destroy()
             record_window()
-        if seconds > 10:
+        if sec > seconds:
             tkinter.messagebox.showerror(message="Larger than 10 seconds.")
             window.destroy()
             record_window()
@@ -60,7 +60,8 @@ def record_window():
     label.grid(column=0, row=0)
     entry_box = Entry(window)
     entry_box.grid(column=1, row=0)
-    label1 = Label(window, text="Enter how long you would like to record for (Max 10 seconds)")
+    label1 = Label(window, text="Enter how long you would like to record for (Max " + str(seconds)
+                                + " seconds)")
     label1.grid(column=0, row=1)
     entry_box1 = Entry(window)
     entry_box1.grid(column=1, row=1)
@@ -81,8 +82,8 @@ def record_sound(file_name, other_window):
 
     def update():
         """
-        Helper function to update the window to show that the recording has taken place and has
-        finished.
+        Updates the window and calls the record function to start recording and
+        converts the file to an mp3 file.
         :return: None
         """
         my_recording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
@@ -234,7 +235,7 @@ def show_entity_sentiment(response):
         for mention in entity.mentions:
             value += ("Mention text: {}\n".format(mention.text.content))
             # Get the mention type, e.g. PROPER for proper noun
-            value +=(
+            value += (
                 "Mention type: {}\n".format(
                     language_v1.EntityMention.Type(mention.type_).name
                 )
@@ -242,7 +243,7 @@ def show_entity_sentiment(response):
             for metadata_name, metadata_value in entity.metadata.items():
                 value += ("{} = {}".format(metadata_name, metadata_value))
 
-        entity_details = {**entity_details, key : value}
+        entity_details = {**entity_details, key: value}
         i += 1
 
 

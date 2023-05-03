@@ -12,15 +12,16 @@ response2 = "There is no saving you. You are a cruel being"
 response3 = "That's very rude! You should spread more positivity instead of hate"
 response4 = "What you just said was inappropriate. Please use your manners."
 response5 = "That wasn't very nice of you to say"
-response6 = ("Your statement has neutral sentiment. Show some more emotion to" + 
-            " have your sentiment properly analyzed.")
+response6 = ("Your statement has neutral sentiment. Show some more emotion to" +
+             " have your sentiment properly analyzed.")
 response7 = "That's nice of you to say"
 response8 = "You're so kind! Great job!"
 response9 = "Wow! You are blowing me away with your kind words."
 response10 = "You are so sweet! I want to be your friend."
 response11 = "You must be an angel on earth. I love you."
 default = "You didn't say anything"
-rate = 175
+rate = 150
+
 
 class ComputerResponse:
     """
@@ -38,7 +39,6 @@ class ComputerResponse:
         self.sentiment = sentiment_value
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', rate)
-
 
     def generate_response(self):
         """
@@ -70,7 +70,6 @@ class ComputerResponse:
         else:
             self.play_sound(default)
 
-
     def play_sound(self, computer_response):
         """
         This method plays a text to speech sound
@@ -80,7 +79,6 @@ class ComputerResponse:
         self.engine.say(computer_response)
         self.engine.runAndWait()
         self.engine.stop()
-
 
     def set_sentiment_value(self, new_sentiment_value):
         """
